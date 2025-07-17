@@ -1,0 +1,27 @@
+[
+    {
+        "id": "1",
+        "questions": [
+            {
+                "question": "La Terra és plana?",
+                "type": "boolean",
+                "answer": "false",
+                "try_limit": 1
+            },
+            {
+                "question": "Capital de França?",
+                "type": "text",
+                "answer": "París"
+            },
+            {
+                "question": "Quin d'aquests és un llenguatge de programació?",
+                "type": "multiple_choice",
+                "answer": "Python",
+                "options": ["Python", "HTML", "CSS", "Chrome"],
+                "try_limit": 3
+            }
+        ],
+        "title": "Barreja de preguntes",
+        "author": "Prof. Llúcia"
+    }
+]
