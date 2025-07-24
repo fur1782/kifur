@@ -5,7 +5,7 @@
     console.log("Conectado");
     socket.emit("join_classroom", { roomId: "ABCD", user: "user1" });
   });
-  socket.on("quiz_started", (data) => {
+  socket.to("ABCD").on("quiz_started", (data) => {
     console.log("Preguntas recibidas:", data.questions);
   });
 </script>

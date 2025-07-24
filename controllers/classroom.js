@@ -37,4 +37,10 @@ export class ClassRoomController {
         res.status(200).json({answer: "correct"})
     }
 
+    updatePuntuation = async (roomId, qId, answer) => {
+        //TODO implementar calcul puntuacions
+        pass
+        
+    }
+
 }

@@ -29,7 +29,7 @@ export const createApp = ({ quizModel, classRoomModel }) => {
     app.use('/v1/classroom', createClassRoomRouter({ classRoomModel: classRoomModel }));
 
     // Socket.io setup
-    setupSocket(io);
+    setupSocket({io:io, quizModel: quizModel, classRoomModel: classRoomModel});
 
     app.get('/', (req, res) => {
       res.send('Hello, World!');
