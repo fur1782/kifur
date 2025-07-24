@@ -8,10 +8,7 @@ export class QuizController {
     }
 
     getQuestions = async (req, res) => {
-        
-        console.log("QuizModel instance:", this.quizModel);
         const qId = req.params.id;
-        console.log("Fetching questions for quiz ID:", qId);
 
         const questions = await this.quizModel.getQuestions({id: qId});
         if (questions) return res.json(questions)

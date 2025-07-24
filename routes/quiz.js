@@ -1,5 +1,5 @@
 import { Router } from "express";
-import {QuizController} from "../controllers/quiz.js";
+import { QuizController } from "../controllers/quiz.js";
 
 export const createQuizRouter = ({quizModel}) => {
     const quizRouter = Router();

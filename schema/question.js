@@ -3,6 +3,7 @@ import {z} from 'zod';
 const type = z.enum([ 'multiple-answer', 'text', 'boolean']);
 
 const QuestSchema = z.object({
+    qId: z.int(),
     question: z.string(),
     type: z.enum(type),
     answer: z.string(),
