@@ -3,7 +3,11 @@ import { QuestSchema } from './question.js';
 
 const ClassroomSchema = z.object({
     roomId: z.string(),
-    userPool: z.array(z.string()),
+    userPool: z.array(z.object({
+        userId: z.string(),
+        userName: z.string(),
+        puntuation: z.int()
+    })),
     questions: z.array(QuestSchema),
     puntuationSchema: z.array(z.object({
         qId: z.int(), 

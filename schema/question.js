@@ -1,11 +1,11 @@
 import {z} from 'zod';
 
-const type = z.enum([ 'multiple-answer', 'text', 'boolean']);
+//const type = z.enum([ 'multiple-answer', 'text', 'boolean']);
 
 const QuestSchema = z.object({
     qId: z.int(),
     question: z.string(),
-    type: z.enum(type),
+    type: z.enum([ 'multiple-answer', 'text', 'boolean']),
     answer: z.string(),
     options: z.array(z.string()).optional(),
     try_limit: z.number().optional()

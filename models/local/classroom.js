@@ -38,6 +38,7 @@ export class ClassroomModel {
 
         return classrooms[index].questions.map(question => {
             return{
+                qId: question.qId,
                 question: question.question,
                 type: question.type,
                 options: question.options || [],

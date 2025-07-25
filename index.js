@@ -26,7 +26,7 @@ export const createApp = ({ quizModel, classRoomModel }) => {
 
     // Routes
     app.use('/v1/quizzes', createQuizRouter({ quizModel: quizModel }));
-    app.use('/v1/classroom', createClassRoomRouter({ classRoomModel: classRoomModel }));
+    app.use('/v1/classroom', createClassRoomRouter({ classRoomModel: classRoomModel, quizModel: quizModel }));
 
     // Socket.io setup
     setupSocket({io:io, quizModel: quizModel, classRoomModel: classRoomModel});

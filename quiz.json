@@ -18,7 +18,7 @@
             {
                 "qId":3,
                 "question": "Quin d'aquests és un llenguatge de programació?",
-                "type": "multiple_choice",
+                "type": "multiple-answer",
                 "answer": "Python",
                 "options": ["Python", "HTML", "CSS", "Chrome"],
                 "try_limit": 3

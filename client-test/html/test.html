@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Test API - Profesor y Alumno</title>
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; }
+    .section { border: 1px solid #ccc; padding: 1em; margin: 1em 0; }
+    .section h2 { margin-top: 0; }
+  </style>
+</head>
+<body>
+  <div class="section" id="profesor">
+    <h2>Profesor</h2>
+    <input type="text" id="prof-roomId" placeholder="Room ID" />
+    <button id="start-class">Iniciar Clase (Socket)</button>
+    <input type="text" id="prof-quizId" placeholder="Quiz ID" />
+    <button id="start-class-api">Iniciar Clase (API)</button>
+    <div id="start-class-result"></div>
+    <h3>Puntuación</h3>
+    <pre id="prof-puntuacion">---</pre>
+  </div>
+
+  <div class="section" id="alumno">
+    <h2>Alumno</h2>
+    <input type="text" id="alum-roomId" placeholder="Room ID" />
+    <button id="join-class">Unirse a Clase</button>
+    <div id="question-section" style="display:none;">
+      <h3>Pregunta</h3>
+      <div id="question-text"></div>
+      <input type="text" id="answer-input" placeholder="Tu respuesta" />
+      <button id="send-answer">Enviar Respuesta</button>
+      <div id="answer-result"></div>
+    </div>
+  </div>
+
+  <script>
+    // Cambia la URL si tu backend está en otro puerto o dominio
+    const socket = io('http://localhost:3000');
+
+    // PROFESOR
+    document.getElementById('start-class').onclick = function() {
+      const roomId = document.getElementById('prof-roomId').value;
+      socket.emit('join-classroom', { roomId }); // El profe también se une para recibir updates
+      socket.emit('start-quiz', { roomId });
+    };
+
+    document.getElementById('start-class-api').onclick = async function() {
+      const roomId = document.getElementById('prof-quizId').value;
+      if (!roomId) {
+        document.getElementById('start-class-result').textContent = "Introduce un Quiz ID";
+        return;
+      }
+      try {
+        const res = await fetch(`http://localhost:3000/v1/classroom/start/${roomId}`, { method: 'GET' });
+        const data = await res.json();
+        document.getElementById('start-class-result').textContent = JSON.stringify(data, null, 2);
+      } catch (err) {
+        document.getElementById('start-class-result').textContent = "Error al iniciar la clase";
+      }
+  };
+
+    socket.on('update-puntuation', data => {
+      document.getElementById('prof-puntuacion').textContent = JSON.stringify(data.puntuationSchema, null, 2);
+    });
+
+    // ALUMNO
+    let currentRoomId = null;
+    let currentQuestions = [];
+    let currentQuestionIndex = 0;
+
+    document.getElementById('join-class').onclick = async function() {
+      currentRoomId = document.getElementById('alum-roomId').value;
+      socket.emit('join-classroom', { roomId: currentRoomId, userName: "alumno"});
+    };
+
+    socket.on('quiz-started', data => {
+      currentQuestions = data.questions || [];
+      currentQuestionIndex = 0;
+      showQuestion();
+    });
+
+    function showQuestion() {
+      if (currentQuestions.length === 0 || currentQuestionIndex >= currentQuestions.length) {
+        document.getElementById('question-section').style.display = 'none';
+        return;
+      }
+      document.getElementById('question-section').style.display = 'block';
+      document.getElementById('question-text').textContent = currentQuestions[currentQuestionIndex].question;
+      if (currentQuestions[currentQuestionIndex].type === "multiple-answer") {
+        
+      }
+      document.getElementById('answer-input').value = '';
+      document.getElementById('answer-result').textContent = '';
+    }
+
+    document.getElementById('send-answer').onclick = async function() {
+      const answer = document.getElementById('answer-input').value;
+      const question = currentQuestions[currentQuestionIndex];
+      console.log(question)
+      const res = await fetch(`http://localhost:3000/v1/classroom/${currentRoomId}/answer`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ qId: question.qId, answer, user: "alumno" })
+      });
+      const data = await res.json();
+      document.getElementById('answer-result').textContent = data.answer;
+      currentQuestionIndex++;
+      setTimeout(showQuestion, 1000);
+    };
+
+    // Opcional: recibir actualizaciones de puntuación como alumno
+    socket.on('update-puntuation', data => {
+      // Puedes mostrar la puntuación al alumno si quieres
+      console.log('Puntuación actualizada:', data.puntuationSchema);
+    });
+  </script>
+</body>
+</html>
