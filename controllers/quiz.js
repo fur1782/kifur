@@ -15,4 +15,10 @@ export class QuizController {
         res.status(404).json({error: "Quiz not found or no questions available."});
     }
 
+    getQuizList = async (req, res) => {
+        const quizzes = await this.quizModel.getAll();
+        if (quizzes) return res.json(quizzes);
+        res.status(404).json({error: "No quizzes found."});
+    }
+
 }

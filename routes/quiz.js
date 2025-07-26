@@ -11,6 +11,7 @@ export const createQuizRouter = ({quizModel}) => {
     // No sé si utilitzar REST API per aquesta funcionalitat, jo crec que podem fer-ho directament amb WS
     // quizRouter.get("/join/:id", );
     quizRouter.get("/:id/questions", quizController.getQuestions);
+    quizRouter.get("/list", quizController.getQuizList);
 
     return quizRouter;
 

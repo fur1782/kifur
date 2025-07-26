@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selecció de Quizzes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 2.5rem;
+            margin-bottom: 40px;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .quiz-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .quiz-card {
+            background: linear-gradient(145deg, #ffffff, #f8f9fa);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quiz-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .quiz-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .quiz-card h2 {
+            color: #2c3e50;
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .quiz-card p {
+            color: #7f8c8d;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .quiz-card button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .quiz-card button:hover {
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .quiz-card button:active {
+            transform: scale(0.95);
+        }
+
+        .loading {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 1.2rem;
+            margin: 40px 0;
+        }
+
+        .error {
+            background: #e74c3c;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            section {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .quiz-list {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .quiz-card {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .quiz-card h2 {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <section>
+            <h1>Selecciona un Quiz</h1>
+            <div class="quiz-list">
+                <div class="loading">Carregant quizzes...</div>
+            </div>
+        </section>
+    </main>
+    <script>
+        const container = document.querySelector('.quiz-list');
+
+        fetch('http://localhost:3000/v1/quizzes/list')
+            .then(res => res.json())
+            .then(data => {
+                container.innerHTML = '';
+                data.forEach(quiz => {
+                    const quizElement = document.createElement('div');
+                    quizElement.className = 'quiz-card';
+                    quizElement.innerHTML = `
+                        <h2>${quiz.title}</h2>
+                        <p>Autor: ${quiz.author}</p>
+                        <button onclick="seleccionarQuiz('${quiz.id}')">Seleccionar</button>
+                    `;
+                    container.appendChild(quizElement);
+                });
+            })
+            .catch(error => {
+                container.innerHTML = `
+                    <div class="error">
+                        Error al carregar els quizzes. Si us plau, torna-ho a provar.
+                    </div>
+                `;
+                console.error('Error:', error);
+            });
+
+        function seleccionarQuiz(quizId) {
+            // Aquí puedes agregar la lógica para navegar al quiz seleccionado
+            window.location.href = `quiz_start.html?quizId=${quizId}`;
+        }
+    </script>
+</body>
+</html>

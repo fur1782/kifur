@@ -1,7 +1,8 @@
 export default function setupClassRoomHandlers(io, socket, classRoomModel) {
     socket.on('join-classroom', async ({roomId, userName}) => {
         socket.join(roomId);
-        await classRoomModel.addUserToPool({roomId: roomId, user:{userId: socket.id, userName: userName, puntuation: 0}})
+        const classRoom = await classRoomModel.addUserToPool({roomId: roomId, user:{userId: socket.id, userName: userName, puntuation: 0}})
+        io.to(roomId).emit('user-joined', {userPool: classRoom.userPool})
         console.log(`Socket ${socket.id} joined classroom ${roomId}`);
     });
 
@@ -14,7 +15,7 @@ export default function setupClassRoomHandlers(io, socket, classRoomModel) {
         //des del controladro, es pot accedir a altres models sense problemes. 
         //TODO: fer-ho amb el quizModel
         const questions = await classRoomModel.getQuestions({roomId: roomId})
-        io.to(roomId).emit('update-puntuation', classRoom.puntuationSchema)
+        io.to(roomId).emit('update-puntuation', { puntuationSchema: classRoom.puntuationSchema})
         io.to(roomId).emit('quiz-started', {questions})
     });
 

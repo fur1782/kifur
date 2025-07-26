@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <title>Kifur - Control de Quiz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .quiz-before-start {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            margin-bottom: 30px;
+        }
+
+        .quiz-after-start {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            display: none;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .quiz-code {
+            background: linear-gradient(145deg, #27ae60, #2ecc71);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(39, 174, 96, 0.3);
+        }
+
+        .quiz-code h1 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .quiz-code h2 {
+            font-size: 3rem;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .user-list {
+            background: linear-gradient(145deg, #ffffff, #f8f9fa);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-list h1 {
+            color: #2c3e50;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .user-list ul {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .user-list li {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            text-align: center;
+            font-weight: 500;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .user-list li:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        .start-quiz-btn {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            border-radius: 30px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 10px 30px rgba(231, 76, 60, 0.3);
+            width: 100%;
+            max-width: 300px;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .start-quiz-btn:hover {
+            background: linear-gradient(135deg, #c0392b, #a93226);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(231, 76, 60, 0.4);
+        }
+
+        .start-quiz-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .question-puntuation {
+            background: linear-gradient(145deg, #ffffff, #f8f9fa);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .question-puntuation h1 {
+            color: #2c3e50;
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .question-puntuation ul {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .question-puntuation li {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 500;
+            box-shadow: 0 5px 15px rgba(155, 89, 182, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .question-puntuation li:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(155, 89, 182, 0.4);
+        }
+
+        .status-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #27ae60;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+            z-index: 1000;
+        }
+
+        .loading {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 1.2rem;
+            margin: 40px 0;
+        }
+
+        .error {
+            background: #e74c3c;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .quiz-before-start,
+            .quiz-after-start {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .quiz-code h2 {
+                font-size: 2.5rem;
+            }
+
+            .user-list ul,
+            .question-puntuation ul {
+                grid-template-columns: 1fr;
+            }
+
+            .start-quiz-btn {
+                padding: 15px 30px;
+                font-size: 1.1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .quiz-code h2 {
+                font-size: 2rem;
+            }
+
+            .user-list h1,
+            .question-puntuation h1 {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="status-indicator" id="status-indicator">
+        Conectant...
+    </div>
+
+    <main>
+        <section class="quiz-before-start">
+            <div class="header">
+                <h1>🎓 Sala de Control del Quiz</h1>
+            </div>
+            
+            <div class="quiz-code">
+                <h1>Codi del Quiz</h1>
+                <h2 id="quiz-code">#</h2>
+            </div>
+            
+            <div class="user-list" id="user-list">
+                <h1>👥 Alumnes Conectats</h1>
+                <ul id="user-list-ul">
+                    <li class="loading">Esperant alumnes...</li>
+                </ul>
+            </div>
+            
+            <button id="start-quiz" class="start-quiz-btn">🚀 Iniciar Quiz</button>
+        </section>
+        
+        <section class="quiz-after-start">
+            <div class="question-puntuation">
+                <h1>📊 Puntuació en Temps Real</h1>
+                <ul id="puntuation-list">
+                    <li class="loading">Carregant puntuacions...</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const socket = io('http://localhost:3000');
+
+        let currentRoomId = null;
+
+        const quizCode = document.getElementById('quiz-code');
+        const startQuizButton = document.getElementById('start-quiz');
+        const userListUl = document.getElementById('user-list-ul');
+        const quizBeforeStart = document.querySelector('.quiz-before-start');
+        const quizAfterStart = document.querySelector('.quiz-after-start');
+        const puntuationListUl = document.getElementById('puntuation-list');
+        const statusIndicator = document.getElementById('status-indicator');
+
+        const params = new URLSearchParams(window.location.search);
+        const quizId = params.get('quizId');
+
+        // Actualizar estado de conexión
+        function updateStatus(message, color = '#27ae60') {
+            statusIndicator.textContent = message;
+            statusIndicator.style.background = color;
+        }
+
+        fetch(`http://localhost:3000/v1/classroom/start/${quizId}`)
+            .then(res => res.json())
+            .then(data => {
+                currentRoomId = data.roomId;
+                quizCode.textContent = data.roomId;
+                updateStatus('Conectat al servidor');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                updateStatus('Error de connexió', '#e74c3c');
+            });
+
+        socket.on('connect', () => {
+            console.log('Connected to server');
+            updateStatus('Conectat al servidor');
+            socket.emit('join-control-room', { roomId: currentRoomId });
+        });
+
+        socket.on('disconnect', () => {
+            updateStatus('Desconnectat', '#e74c3c');
+        });
+
+        startQuizButton.onclick = () => {
+            socket.emit('start-quiz', { roomId: currentRoomId });
+            quizBeforeStart.style.display = 'none';
+            quizAfterStart.style.display = 'block';
+            updateStatus('Quiz en curs', '#f39c12');
+        }
+
+        socket.on('user-joined', (data) => {
+            console.log(data);
+            userListUl.innerHTML = '';
+            data.userPool.forEach(user => {
+                const li = document.createElement('li');
+                li.textContent = user.userName;
+                userListUl.appendChild(li);
+            });
+        });
+
+        socket.on('update-puntuation', (data) => {
+            puntuationListUl.innerHTML = '';
+            data.puntuationSchema.forEach(puntuation => {
+                const li = document.createElement('li');
+                li.textContent = `Pregunta ${puntuation.qId}: ${puntuation.puntuation} punts`;
+                puntuationListUl.appendChild(li);
+            });
+        });
+    </script>
+</body>
+</html>

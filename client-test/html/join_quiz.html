@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <title>Kifur - Unirse al Quiz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        main {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .quiz-before-start {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            margin-bottom: 30px;
+        }
+
+        .quiz-after-start {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            display: none;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .join-form {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e1e8ed;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .join-btn {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            width: 100%;
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+        }
+
+        .join-btn:hover {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(39, 174, 96, 0.4);
+        }
+
+        .join-btn:active {
+            transform: translateY(0);
+        }
+
+        .selected-question {
+            background: linear-gradient(145deg, #ffffff, #f8f9fa);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .selected-question h2 {
+            color: #2c3e50;
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .question-text {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .question-text h2 {
+            color: white;
+            font-size: 1.3rem;
+            margin-bottom: 0;
+        }
+
+        .answers {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .answer-option {
+            background: white;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .answer-option:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+            transform: translateX(5px);
+        }
+
+        .answer-option input[type="radio"] {
+            width: auto;
+            margin: 0;
+        }
+
+        .answer-option input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .answer-option input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        }
+
+        .submit-answer-btn {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .submit-answer-btn:hover {
+            background: linear-gradient(135deg, #c0392b, #a93226);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .question-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .question-item {
+            background: linear-gradient(145deg, #ffffff, #f8f9fa);
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .question-item:hover {
+            transform: translateY(-5px);
+            border-color: #667eea;
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.2);
+        }
+
+        .question-item h2 {
+            color: #2c3e50;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .question-answers {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        .status-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #27ae60;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+            z-index: 1000;
+        }
+
+        .loading {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 1.2rem;
+            margin: 40px 0;
+        }
+
+        .error {
+            background: #e74c3c;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .quiz-before-start,
+            .quiz-after-start {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .question-list {
+                grid-template-columns: 1fr;
+            }
+
+            .join-btn {
+                padding: 12px 30px;
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .selected-question h2 {
+                font-size: 1.2rem;
+            }
+
+            .question-text h2 {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="status-indicator" id="status-indicator">
+        Desconnectat
+    </div>
+
+    <main>
+        <section class="quiz-before-start">
+            <div class="header">
+                <h1>🎯 Unirse al Quiz</h1>
+            </div>
+            
+            <form class="join-form" action="">
+                <div class="form-group">
+                    <label for="roomId">Codi de la Sala</label>
+                    <input type="text" name="roomId" id="roomId" placeholder="Introdueix el codi de la sala">
+                </div>
+                <div class="form-group">
+                    <label for="userName">Nom d'Usuari</label>
+                    <input type="text" name="username" id="userName" placeholder="Introdueix el teu nom">
+                </div>
+                <button type="submit" class="join-btn">🚀 Unir-se</button>
+            </form>
+        </section>
+        
+        <section class="quiz-after-start">
+            <div class="selected-question">
+                <h2>📝 Pregunta Actual</h2>
+                <div class="question-text">
+                    <h2 id="current-question">Esperant pregunta...</h2>
+                </div>
+                <div class="answers" id="answers-container">
+                    <div class="loading">Carregant respostes...</div>
+                </div>
+                <button class="submit-answer-btn" onclick="sendAnswer()">✅ Enviar Resposta</button>
+            </div>
+            
+            <div class="question-list" id="question-list">
+                <div class="loading">Carregant preguntes...</div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const answerContainer = document.querySelector('.answers');
+        const statusIndicator = document.getElementById('status-indicator');
+        const currentQuestionElement = document.getElementById('current-question');
+        const answersContainer = document.getElementById('answers-container');
+        const questionList = document.getElementById('question-list');
+
+        let selectedQuestion = null;
+        let questions = [];
+        let roomId = '';
+        let userName = '';
+
+        const socket = io('http://localhost:3000');
+
+        // Actualizar estado de conexión
+        function updateStatus(message, color = '#27ae60') {
+            statusIndicator.textContent = message;
+            statusIndicator.style.background = color;
+        }
+
+        socket.on('connect', () => {
+            console.log('Connected to server');
+            updateStatus('Conectat al servidor');
+        });
+
+        socket.on('disconnect', () => {
+            updateStatus('Desconnectat', '#e74c3c');
+        });
+        
+        const form = document.querySelector('form');
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            roomId = document.getElementById('roomId').value;
+            userName = document.getElementById('userName').value;
+            
+            if (!roomId || !userName) {
+                alert('Si us plau, omple tots els camps');
+                return;
+            }
+
+            // Unirse a la sala
+            socket.emit('join-classroom', { roomId, userName });
+            updateStatus('Unint-se a la sala...', '#f39c12');
+            
+            // Ocultar formulario y mostrar quiz
+            document.querySelector('.quiz-before-start').style.display = 'none';
+            document.querySelector('.quiz-after-start').style.display = 'block';
+        });
+
+        function showQuestion(question) {
+            selectedQuestion = question;
+            currentQuestionElement.textContent = question.question;
+            
+            if (question.type === 'text') {
+                answersContainer.innerHTML = `
+                    <div class="answer-option">
+                        <input type="text" name="answer" id="answer" placeholder="Escriu la teva resposta">
+                    </div>
+                `;
+            }
+            
+            if (question.type === 'multiple-answer') {
+                answersContainer.innerHTML = `
+                    ${question.options.map((option, index) => `
+                        <div class="answer-option">
+                            <input type="radio" name="answer" id="answer-${index}" value="${option}">
+                            <label for="answer-${index}">${option}</label>
+                        </div>
+                    `).join('')}
+                `;
+            }
+            
+            if (question.type === 'boolean') {
+                answersContainer.innerHTML = `
+                    <div class="answer-option">
+                        <input type="radio" name="answer" id="answer-true" value="true">
+                        <label for="answer-true">true</label>
+                    </div>
+                    <div class="answer-option">
+                        <input type="radio" name="answer" id="answer-false" value="false">
+                        <label for="answer-false">false</label>
+                    </div>
+                `;
+            }
+        }
+
+        function sendAnswer() {
+            if (!selectedQuestion) return;
+
+            let answer = '';
+            if (selectedQuestion.type === 'text') {
+                answer = document.getElementById('answer').value;
+            } else {
+                const selectedRadio = document.querySelector('input[name="answer"]:checked');
+                answer = selectedRadio ? selectedRadio.value : '';
+            }
+
+            if (!answer) {
+                alert('Si us plau, selecciona una resposta');
+                return;
+            }
+
+            console.log(answer);
+
+            fetch(`http://localhost:3000/v1/classroom/${roomId}/answer/`, {
+                method: 'POST',
+                body: JSON.stringify({ 
+                    "qId": selectedQuestion.qId,
+                    "answer": answer,
+                    "userName": userName
+                }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                console.log(data);
+                updateStatus('Resposta enviada!', '#27ae60');
+            })
+            .catch(err => {
+                console.log(err);
+                updateStatus('Error al enviar resposta', '#e74c3c');
+            });
+        }
+
+        socket.on('quiz-started', (data) => {
+            questions = data.questions || [];
+            selectedQuestion = questions[0];
+
+            // Mostrar lista de preguntas
+            questionList.innerHTML = '';
+            questions.forEach((question, index) => {
+                const questionElement = document.createElement('div');
+                questionElement.classList.add('question-item');
+                questionElement.innerHTML = `
+                    <h2>Pregunta ${index + 1}</h2>
+                    <div class="question-answers">${question.question}</div>
+                `;
+                questionElement.onclick = () => showQuestion(question);
+                questionList.appendChild(questionElement);
+            });
+
+            showQuestion(selectedQuestion);
+            updateStatus('Quiz iniciat!', '#27ae60');
+        });
+    </script>
+</body>
+</html>

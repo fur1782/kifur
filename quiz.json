@@ -26,5 +26,182 @@
         ],
         "title": "Barreja de preguntes",
         "author": "Prof. Llúcia"
+    },
+    {
+        "id": "2",
+        "questions": [
+            {
+                "qId": 1,
+                "question": "Quin és el planeta més gran del sistema solar?",
+                "type": "multiple-answer",
+                "answer": "Júpiter",
+                "options": ["Terra", "Júpiter", "Saturn", "Neptú"],
+                "try_limit": 2
+            },
+            {
+                "qId": 2,
+                "question": "L'aigua bull a 100 graus Celsius?",
+                "type": "boolean",
+                "answer": "true",
+                "try_limit": 1
+            },
+            {
+                "qId": 3,
+                "question": "Quin any va començar la Primera Guerra Mundial?",
+                "type": "text",
+                "answer": "1914"
+            }
+        ],
+        "title": "Ciència i Història",
+        "author": "Prof. Martí"
+    },
+    {
+        "id": "3",
+        "questions": [
+            {
+                "qId": 1,
+                "question": "Quin és el riu més llarg del món?",
+                "type": "multiple-answer",
+                "answer": "Nil",
+                "options": ["Nil", "Amazones", "Mississipí", "Yangtze"],
+                "try_limit": 3
+            },
+            {
+                "qId": 2,
+                "question": "El sol és una estrella?",
+                "type": "boolean",
+                "answer": "true",
+                "try_limit": 1
+            },
+            {
+                "qId": 3,
+                "question": "Quin és el símbol químic de l'or?",
+                "type": "text",
+                "answer": "Au"
+            },
+            {
+                "qId": 4,
+                "question": "Quin d'aquests és un element de la taula periòdica?",
+                "type": "multiple-answer",
+                "answer": "Oxigen",
+                "options": ["Aigua", "Oxigen", "Sal", "Sucre"],
+                "try_limit": 2
+            }
+        ],
+        "title": "Geografia i Química",
+        "author": "Prof. Anna"
+    },
+    {
+        "id": "4",
+        "questions": [
+            {
+                "qId": 1,
+                "question": "Quin és el llenguatge de programació més popular?",
+                "type": "multiple-answer",
+                "answer": "JavaScript",
+                "options": ["Python", "JavaScript", "Java", "C++"],
+                "try_limit": 2
+            },
+            {
+                "qId": 2,
+                "question": "HTML és un llenguatge de programació?",
+                "type": "boolean",
+                "answer": "false",
+                "try_limit": 1
+            },
+            {
+                "qId": 3,
+                "question": "Quin és el creador de Python?",
+                "type": "text",
+                "answer": "Guido van Rossum"
+            },
+            {
+                "qId": 4,
+                "question": "Quin d'aquests és un framework de JavaScript?",
+                "type": "multiple-answer",
+                "answer": "React",
+                "options": ["React", "Django", "Flask", "Express"],
+                "try_limit": 3
+            }
+        ],
+        "title": "Programació Web",
+        "author": "Prof. Carles"
+    },
+    {
+        "id": "5",
+        "questions": [
+            {
+                "qId": 1,
+                "question": "Quin és l'autor de 'El Quixot'?",
+                "type": "text",
+                "answer": "Miguel de Cervantes"
+            },
+            {
+                "qId": 2,
+                "question": "Shakespeare va escriure 'Romeo i Julieta'?",
+                "type": "boolean",
+                "answer": "true",
+                "try_limit": 1
+            },
+            {
+                "qId": 3,
+                "question": "Quin d'aquests és un gènere literari?",
+                "type": "multiple-answer",
+                "answer": "Novel·la",
+                "options": ["Novel·la", "Pintura", "Música", "Escultura"],
+                "try_limit": 2
+            },
+            {
+                "qId": 4,
+                "question": "Quin és el poeta català més important del segle XX?",
+                "type": "text",
+                "answer": "Joan Maragall"
+            }
+        ],
+        "title": "Literatura",
+        "author": "Prof. Maria"
+    },
+    {
+        "id": "6",
+        "questions": [
+            {
+                "qId": 1,
+                "question": "Quin és el component principal de l'aire?",
+                "type": "multiple-answer",
+                "answer": "Nitrogen",
+                "options": ["Oxigen", "Nitrogen", "Dióxid de carboni", "Hidrogen"],
+                "try_limit": 2
+            },
+            {
+                "qId": 2,
+                "question": "Els humans tenen 206 ossos?",
+                "type": "boolean",
+                "answer": "true",
+                "try_limit": 1
+            },
+            {
+                "qId": 3,
+                "question": "Quin és l'òrgan més gran del cos humà?",
+                "type": "text",
+                "answer": "Pell"
+            },
+            {
+                "qId": 4,
+                "question": "Quin d'aquests és un tipus de cèl·lula sanguínia?",
+                "type": "multiple-answer",
+                "answer": "Glòbuls vermells",
+                "options": ["Glòbuls vermells", "Neurones", "Osteòcits", "Fibroblasts"],
+                "try_limit": 3
+            },
+            {
+                "qId": 5,
+                "question": "El cor té 4 cambres?",
+                "type": "boolean",
+                "answer": "true",
+                "try_limit": 1
+            }
+        ],
+        "title": "Biologia Humana",
+        "author": "Prof. Jordi"
     }
 ]
