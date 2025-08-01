@@ -8,7 +8,7 @@ export class ClassRoomController {
 
     sendAnswer = async (req, res) => {
         const roomId = req.params.roomId;
-        const { qId, answer, user } = req.body;
+        const { qId, answer } = req.body;
 
         const classRoom = await this.classRoomModel.getClassroomById({ roomId });
 
@@ -21,59 +21,23 @@ export class ClassRoomController {
             return res.status(400).json({ error: "Question not found in classroom" });
         }
 
-        // Valor actual de la pregunta ABANS d'actualitzar la puntuació
-        const questionPuntuation = classRoom.puntuationSchema.find(p => p.qId === qId);
-        if (!questionPuntuation) {
-            return res.status(400).json({ error: "Puntuation not found for question" });
-        }
-        const currentValue = questionPuntuation.value ?? 10;
+        // Comparació directa, sense normalitzar
+        const isCorrect = question.answer === answer;
 
-        // Normalització de respostes de tipus text (opcional)
-        let isCorrect;
-        if (question.type === "text") {
-            const normalize = str =>
-                str
-                    .trim()
-                    .toLowerCase()
-                    .normalize("NFD")
-                    .replace(/[\u0300-\u036f]/g, "")
-                    .replace(/\s+/g, " ");
-            isCorrect = normalize(question.answer) === normalize(answer);
-        } else {
-            isCorrect = question.answer === answer;
-        }
-
-        // Si usuario no té un score, inicialitzem
-        if (!classRoom.scores) {
-            classRoom.scores = {};
-        }
-        if (!classRoom.scores[user]) {
-            classRoom.scores[user] = 0;
-        }
-
-        // Si respon correctament, sumem el value actual al score
-        if (isCorrect) {
-            classRoom.scores[user] += currentValue;
-            // Opcional: arrodonir a 2 decimals
-            classRoom.scores[user] = Math.round(classRoom.scores[user] * 100) / 100;
-        }
-
-        // Actualiza els comptadors i els valors (correct / incorrect i recalcula valors)
+        // Actualiza els contadors y els valors
         await this.updatePuntuation({ classRoom, qId, isCorrect });
 
-        // Guarda el nou estat de l'aula (amb les puntuationSchema i les scores)
-        const result = await this.classRoomModel.updateClassroom({
+        // Guarda el nou estat d'aula
+        await this.classRoomModel.updateClassroom({
             classroomData: {
-                puntuationSchema: classRoom.puntuationSchema,
-                scores: classRoom.scores
+                puntuationSchema: classRoom.puntuationSchema
             },
             roomId
         });
 
-        // Emet esdeveniment als clients connectats (puntuationSchema y scores)
+        // Emet esdeveniment als clients connectats
         req.app.get('io').to(roomId).emit('update-puntuation', {
-            puntuationSchema: classRoom.puntuationSchema,
-            scores: classRoom.scores
+            puntuationSchema: classRoom.puntuationSchema
         });
 
         return res.status(200).json({ answer: isCorrect ? "correct" : "incorrect" });
@@ -84,7 +48,7 @@ export class ClassRoomController {
     };
 
     updatePuntuation = async ({ classRoom, qId, isCorrect }) => {
-        const alpha = 1; // control del decreixement per encerts
+        const alpha = 1; //Aquest paràmetre alfa controla com de forta és la penalització per errors
 
         const questionPuntuation = classRoom.puntuationSchema.find(p => p.qId === qId);
         if (!questionPuntuation) return;
@@ -95,29 +59,35 @@ export class ClassRoomController {
             questionPuntuation.incorrect = (questionPuntuation.incorrect || 0) + 1;
         }
 
-        // Suma de valors base inicials
-        const C = classRoom.puntuationSchema.reduce((acc, p) => {
-            const question = classRoom.questions.find(q => q.qId === p.qId);
-            const baseValue = question?.value ?? 10;
-            return acc + baseValue;
+        const SumQuestionValues = classRoom.puntuationSchema.reduce((acc, p) => {
+            return acc + p.value;
         }, 0);
 
-        // Recalcular els valors
-        classRoom.puntuationSchema.forEach(p => {
-            const question = classRoom.questions.find(q => q.qId === p.qId);
-            if (!question) return;
+        let tempValues = []; // Valors temporals
+        let totalTemp = 0; // Variable per acumular el total dels valors temporals
 
-            const baseValue = question.value ?? 10;
+        for (const p of classRoom.puntuationSchema) {
+
+            const baseValue = p.value ?? 10;
             const correct = p.correct || 0;
             const incorrect = p.incorrect || 0;
 
-            const increasedValue = C - ((C - baseValue) / (incorrect + 1));
+            const increasedValue = SumQuestionValues - ((SumQuestionValues - baseValue) / (incorrect + 1));
             const decreasedValue = increasedValue / Math.pow(correct + 1, alpha);
 
-            p.value = Math.round(decreasedValue * 100) / 100;
-        });
+            tempValues.push({ qId: p.qId, temp: decreasedValue }); // Emmagatzema el valor temporal per a cada pregunta
+            totalTemp += decreasedValue; // Acumula el total dels valors temporals
+        }
+
+        for (const p of classRoom.puntuationSchema) {
+            const tempObj = tempValues.find(v => v.qId === p.qId);
+            const normalizedValue = (tempObj.temp / totalTemp) * SumQuestionValues; 
+            //En aquestes dues últimes línies el que faig és recollir cada objecte temporal (pregunta "qID" i puntuació "value")
+            //Llavors ho divideixo pels values totals temporals i ho multiplico per C que és sobre el valor que vull la puntuació al final
+            //Algo així com quan fas un examen sobre 8 que treus un 7 i per saber la nota sobre 10 és 7/8*10.
+            p.value = Math.round(normalizedValue * 100) / 100;
+        }
 
         return classRoom.puntuationSchema;
     };
 }
-
