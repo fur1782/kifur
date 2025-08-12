@@ -328,6 +328,7 @@
                 currentRoomId = data.roomId;
                 quizCode.textContent = data.roomId;
                 updateStatus('Conectat al servidor');
+                socket.emit('join-control-room', { roomId: currentRoomId });
             })
             .catch(error => {
                 console.error('Error:', error);
@@ -335,9 +336,8 @@
             });
 
         socket.on('connect', () => {
-            console.log('Connected to server');
-            updateStatus('Conectat al servidor');
-            socket.emit('join-control-room', { roomId: currentRoomId });
+                console.log('Connected to server');
+                updateStatus('Conectat al servidor');
         });
 
         socket.on('disconnect', () => {

@@ -124,8 +124,8 @@ export class ClassRoomController {
             return res.status(400).json({error: classroomData.error})
         }
 
-        await this.classRoomModel.createClassroom({classroomData: classroomData})
-        res.status(200).json({roomId: classroomData.roomId})
+        const newClassroom = await this.classRoomModel.createClassroom({classroomData: classroomData})
+        res.status(200).json({roomId: newClassroom.roomId})
     }
 
     generateRoomCode( length = 5){
