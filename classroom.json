@@ -27,15 +27,26 @@
     "puntuationSchema": [
         {
             "qId":1, 
-            "puntuation": 1
+            "puntuation": 1,
+            "value": 10,
+            "correct": 0,
+            "incorrect": 0
         },
         {
             "qId":2, 
-            "puntuation": 1
+            "puntuation": 1,
+            "value": 10,
+            "correct": 0,
+            "incorrect": 0
+
         },
         {
             "qId":3, 
-            "puntuation": 1
+            "puntuation": 1,
+            "value": 10,
+            "correct": 0,
+            "incorrect": 0
+
         }
     ]
 }]
