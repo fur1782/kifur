@@ -1,6 +1,11 @@
 [{
     "roomId": "ABCD",
-    "userPool": ["user1","user2","user3","user4"],
+    "userPool": [
+        {"userId":"aknsjkdna", "username":"user1", "puntuation":0},
+        {"userId":"aknsjkdna", "username":"user2", "puntuation":0},
+        {"userId":"aknsjkdna", "username":"user3", "puntuation":0},
+        {"userId":"aknsjkdna", "username":"user4", "puntuation":0}
+    ],
     "questions": [
             {
                 "qId":1,

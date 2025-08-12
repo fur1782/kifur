@@ -1,7 +1,7 @@
 export default function setupClassRoomHandlers(io, socket, classRoomModel) {
     socket.on('join-classroom', async ({roomId, userName}) => {
         socket.join(roomId);
-        const classRoom = await classRoomModel.addUserToPool({roomId: roomId, user:{userId: socket.id, userName: userName, puntuation: 0}})
+        const classRoom = await classRoomModel.addUserToPool({roomId: roomId, user:{userId: socket.id, username: userName, puntuation: 0}})
         io.to(roomId).emit('user-joined', {userPool: classRoom.userPool})
         console.log(`Socket ${socket.id} joined classroom ${roomId}`);
     });

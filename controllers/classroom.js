@@ -9,7 +9,7 @@ export class ClassRoomController {
 
     sendAnswer = async (req, res) => {
         const roomId = req.params.roomId;
-        const {qId, answer, userName} = req.body
+        const {qId, answer, userName, trys} = req.body
 
         const classRoom = await this.classRoomModel.getClassroomById({roomId: roomId})
 
@@ -26,20 +26,24 @@ export class ClassRoomController {
         // Comparació directa, sense normalitzar
         const isCorrect = question.answer === answer;
 
+        if (isCorrect){
+            const valueQuest = classRoom.puntuationSchema.find(element => element.qId === qId).value
+            console.log(valueQuest)
+            classRoom.userPool = await this.classRoomModel.updateUserPool({roomId, username:userName, valueQuest})
+        }
+
         // Actualiza els contadors y els valors
-        await this.updatePuntuation({ classRoom, qId, isCorrect });
+        const updatedPuntuation = await this.updatePuntuation({ classRoom, qId, isCorrect });
+
+        
 
         // Guarda el nou estat d'aula
-        await this.classRoomModel.updateClassroom({
-            classroomData: {
-                puntuationSchema: classRoom.puntuationSchema
-            },
-            roomId
-        });
+        await this.classRoomModel.updateClassroom({classroomData: { puntuationSchema: classRoom.puntuationSchema}, roomId});
 
         // Emet esdeveniment als clients connectats
         req.app.get('io').to(roomId).emit('update-puntuation', {
-            puntuationSchema: classRoom.puntuationSchema
+            puntuationSchema: classRoom.puntuationSchema,
+            userPool: classRoom.userPool
         });
 
         return res.status(200).json({ answer: isCorrect ? "correct" : "incorrect" });
@@ -62,11 +66,7 @@ export class ClassRoomController {
         const questionPuntuation = classRoom.puntuationSchema.find(p => p.qId === qId);
         if (!questionPuntuation) return;
 
-        if (isCorrect) {
-            questionPuntuation.correct = (questionPuntuation.correct || 0) + 1;
-        } else {
-            questionPuntuation.incorrect = (questionPuntuation.incorrect || 0) + 1;
-        }
+        isCorrect ? questionPuntuation.correct++ : questionPuntuation.incorrect++;
 
         const SumQuestionValues = classRoom.puntuationSchema.reduce((acc, p) => {
             return acc + p.value;
@@ -113,7 +113,7 @@ export class ClassRoomController {
             roomId: this.generateRoomCode(),
             questions: quiz.questions,
             userPool: [],
-            puntuationSchema: quiz.questions.map(question => ({qId: question.qId, puntuation: 1}))
+            puntuationSchema: quiz.questions.map(question => ({qId: question.qId, puntuation: 1, value: 10, correct: 0, incorrect: 0}))
         }
 
         console.log(classroomData)

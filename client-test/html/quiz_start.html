@@ -291,6 +291,11 @@
                     <li class="loading">Carregant puntuacions...</li>
                 </ul>
             </div>
+            <div class="user-list">
+                <h2>User Pool</h2>
+                <ul id="user-pool-list">
+                </ul>
+            </div>
         </section>
     </main>
 
@@ -306,6 +311,7 @@
         const quizAfterStart = document.querySelector('.quiz-after-start');
         const puntuationListUl = document.getElementById('puntuation-list');
         const statusIndicator = document.getElementById('status-indicator');
+        const UserPoolListUl = document.getElementById('user-pool-list');
 
         const params = new URLSearchParams(window.location.search);
         const quizId = params.get('quizId');
@@ -350,7 +356,7 @@
             userListUl.innerHTML = '';
             data.userPool.forEach(user => {
                 const li = document.createElement('li');
-                li.textContent = user.userName;
+                li.textContent = user.username;
                 userListUl.appendChild(li);
             });
         });
@@ -359,9 +365,17 @@
             puntuationListUl.innerHTML = '';
             data.puntuationSchema.forEach(puntuation => {
                 const li = document.createElement('li');
-                li.textContent = `Pregunta ${puntuation.qId}: ${puntuation.puntuation} punts`;
+                li.textContent = `Pregunta ${puntuation.qId}: ${puntuation.value} punts`;
                 puntuationListUl.appendChild(li);
             });
+
+            UserPoolListUl.innerHTML = ''
+
+            data.userPool.forEach(user => {
+                const li = document.createElement('li');
+                li.textContent = `${user.username} ${user.puntuation}`
+                UserPoolListUl.appendChild(li)
+            })
         });
     </script>
 </body>

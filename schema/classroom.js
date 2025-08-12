@@ -5,13 +5,16 @@ const ClassroomSchema = z.object({
     roomId: z.string(),
     userPool: z.array(z.object({
         userId: z.string(),
-        userName: z.string(),
-        puntuation: z.int()
+        username: z.string(),
+        puntuation: z.int(),
     })),
     questions: z.array(QuestSchema),
     puntuationSchema: z.array(z.object({
         qId: z.int(), 
-        puntuation: z.int()
+        puntuation: z.int(),
+        value: z.int(),
+        correct: z.int(),
+        incorrect: z.int(),
     }))
 })
 

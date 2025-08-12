@@ -32,6 +32,15 @@ export class ClassroomModel {
         return classrooms[index]
     }
 
+    static async updateUserPool({roomId, username, valueQuest}){
+        const index = classrooms.findIndex(classrooms => classrooms.roomId === roomId)
+        if (index === -1) throw new Error("Classroom not found");
+
+        classrooms[index].userPool.find(user => user.username === username).puntuation += valueQuest
+
+        return classrooms[index].userPool
+    } 
+
     static async getQuestions({roomId}) {
         const index = classrooms.findIndex(classroom => classroom.roomId === roomId)
         if (index === -1) throw new Error("Classroom not found");
