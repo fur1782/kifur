@@ -9,44 +9,50 @@ export class ClassRoomController {
 
     sendAnswer = async (req, res) => {
         const roomId = req.params.roomId;
-        const {qId, answer, userName, trys} = req.body
+        const {qId, answer, userName} = req.body;
 
-        const classRoom = await this.classRoomModel.getClassroomById({roomId: roomId})
+        try {
+            const classRoom = await this.classRoomModel.getClassroomById({roomId});
 
-        if (!classRoom) {
-            return res.status(400).json({error: "Classroom not found"});
+            if (!classRoom) {
+                return res.status(404).json({error: "Classroom not found"});
+            }
+
+            const question = classRoom.questions.find(question => question.qId === qId);
+
+            if (!question) {
+                return res.status(404).json({error: "Question not found in classroom"});
+            }
+
+            // Comparació directa, sense normalitzar
+            const isCorrect = question.answer === answer;
+
+            if (isCorrect){
+                const puntuationEntry = classRoom.puntuationSchema.find(element => element.qId === qId);
+                if (!puntuationEntry) {
+                    return res.status(400).json({error: "Puntuation schema not found"});
+                }
+                const valueQuest = puntuationEntry.value;
+                classRoom.userPool = await this.classRoomModel.updateUserPool({roomId, username:userName, valueQuest});
+            }
+
+            // Actualiza els contadors y els valors
+            await this.updatePuntuation({ classRoom, qId, isCorrect });
+
+            // Guarda el nou estat d'aula
+            await this.classRoomModel.updateClassroom({classroomData: { puntuationSchema: classRoom.puntuationSchema}, roomId});
+
+            // Emet esdeveniment als clients connectats
+            req.app.get('io').to(roomId).emit('update-puntuation', {
+                puntuationSchema: classRoom.puntuationSchema,
+                userPool: classRoom.userPool
+            });
+
+            return res.status(200).json({ answer: isCorrect ? "correct" : "incorrect" });
+        } catch (error) {
+            console.error('Error processing answer:', error);
+            return res.status(500).json({error: "Unable to process answer"});
         }
-
-        const question = classRoom.questions.find(question => question.qId === qId)
-
-        if (!question) {
-            return res.status(400).json({error: "Question Classroom not found"});
-        }
-
-        // Comparació directa, sense normalitzar
-        const isCorrect = question.answer === answer;
-
-        if (isCorrect){
-            const valueQuest = classRoom.puntuationSchema.find(element => element.qId === qId).value
-            console.log(valueQuest)
-            classRoom.userPool = await this.classRoomModel.updateUserPool({roomId, username:userName, valueQuest})
-        }
-
-        // Actualiza els contadors y els valors
-        const updatedPuntuation = await this.updatePuntuation({ classRoom, qId, isCorrect });
-
-        
-
-        // Guarda el nou estat d'aula
-        await this.classRoomModel.updateClassroom({classroomData: { puntuationSchema: classRoom.puntuationSchema}, roomId});
-
-        // Emet esdeveniment als clients connectats
-        req.app.get('io').to(roomId).emit('update-puntuation', {
-            puntuationSchema: classRoom.puntuationSchema,
-            userPool: classRoom.userPool
-        });
-
-        return res.status(200).json({ answer: isCorrect ? "correct" : "incorrect" });
         
         /*if( question.answer !== answer ){
             return res.status(200).json({answer: "incorrect"})
@@ -72,7 +78,7 @@ export class ClassRoomController {
             return acc + p.value;
         }, 0);
 
-        let tempValues = []; // Valors temporals
+        const tempValues = []; // Valors temporals
         let totalTemp = 0; // Variable per acumular el total dels valors temporals
 
         for (const p of classRoom.puntuationSchema) {
@@ -113,10 +119,9 @@ export class ClassRoomController {
             roomId: this.generateRoomCode(),
             questions: quiz.questions,
             userPool: [],
-            puntuationSchema: quiz.questions.map(question => ({qId: question.qId, puntuation: 1, value: 10, correct: 0, incorrect: 0}))
+            puntuationSchema: quiz.questions.map(question => ({qId: question.qId, puntuation: 1, value: 10, correct: 0, incorrect: 0})),
+            status: 'active'
         }
-
-        console.log(classroomData)
 
         const result = validateClassRoom(classroomData)
 
@@ -126,6 +131,79 @@ export class ClassRoomController {
 
         const newClassroom = await this.classRoomModel.createClassroom({classroomData: classroomData})
         res.status(200).json({roomId: newClassroom.roomId})
+    }
+
+    finishGame = async (req, res) => {
+        const { roomId } = req.params;
+
+        try {
+            const classRoom = await this.classRoomModel.getClassroomById({roomId});
+
+            if (!classRoom) {
+                return res.status(404).json({error: "Classroom not found"});
+            }
+
+            const finishedAt = new Date().toISOString();
+
+            if (typeof this.classRoomModel.finishClassroom === 'function') {
+                await this.classRoomModel.finishClassroom({roomId, endedAt: finishedAt});
+            } else {
+                await this.classRoomModel.updateClassroom({roomId, classroomData: {status: 'finished', endedAt: finishedAt}});
+            }
+
+            const results = {
+                state: "finished"
+            };
+
+            req.app.get('io').to(roomId).emit('classroom-finished', results);
+
+            return res.status(200).json(results);
+        } catch (error) {
+            console.error('Error finishing classroom:', error);
+            return res.status(500).json({error: "Unable to finish classroom"});
+        }
+    }
+
+    getResults = async (req, res) => {
+        const { roomId } = req.params;
+
+        try {
+            const classRoom = await this.classRoomModel.getClassroomById({roomId});
+
+            if (!classRoom) {
+                return res.status(404).json({error: "Classroom not found"});
+            }
+
+            const finishedAt = new Date().toISOString();
+
+            const leaderboard = [...(classRoom.userPool ?? [])]
+                .map(user => ({
+                    userId: user.userId,
+                    username: user.username,
+                    puntuation: user.puntuation
+                }))
+                .sort((a, b) => b.puntuation - a.puntuation);
+
+            const questionStats = (classRoom.puntuationSchema ?? []).map(stats => ({
+                qId: stats.qId,
+                value: stats.value,
+                correct: stats.correct,
+                incorrect: stats.incorrect
+            }));
+
+            const results = {
+                roomId,
+                finishedAt,
+                leaderboard,
+                questionStats,
+            };
+
+            return res.status(200).json(results);
+        } catch (error) {
+            console.error('Error finishing classroom:', error);
+            return res.status(500).json({error: "Unable to find classroom"});
+        }
+
     }
 
     generateRoomCode( length = 5){

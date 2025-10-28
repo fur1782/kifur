@@ -1,0 +1,186 @@
+[
+  {
+    "id": "math-basics",
+    "title": "Matemàtiques - Conceptes Bàsics",
+    "author": "Prof. Núria",
+    "description": "Repàs ràpid d'operacions i conceptes introductoris.",
+    "questions": [
+      {
+        "qId": 1,
+        "question": "Quant és 12 + 15?",
+        "type": "text",
+        "answer": "27",
+        "try_limit": 2
+      },
+      {
+        "qId": 2,
+        "question": "Quina figura té quatre costats iguals i quatre angles rectes?",
+        "type": "multiple-answer",
+        "answer": "Quadrat",
+        "options": ["Rectangle", "Quadrat", "Paral·lelogram", "Rombe"],
+        "try_limit": 3
+      },
+      {
+        "qId": 3,
+        "question": "El número 83 és primer?",
+        "type": "boolean",
+        "answer": "true",
+        "try_limit": 1
+      },
+      {
+        "qId": 4,
+        "question": "Quin és el resultat de 9 × 7?",
+        "type": "text",
+        "answer": "63"
+      }
+    ]
+  },
+  {
+    "id": "catalan-history",
+    "title": "Història de Catalunya",
+    "author": "Prof. Montserrat",
+    "description": "Fets destacats de la història catalana.",
+    "questions": [
+      {
+        "qId": 1,
+        "question": "En quin any es va celebrar la primera Diada Nacional moderna?",
+        "type": "text",
+        "answer": "1886",
+        "try_limit": 2
+      },
+      {
+        "qId": 2,
+        "question": "La Guerra dels Segadors va tenir lloc al segle XVII?",
+        "type": "boolean",
+        "answer": "true",
+        "try_limit": 1
+      },
+      {
+        "qId": 3,
+        "question": "Quina d'aquestes figures va ser president de la Generalitat restaurada el 1977?",
+        "type": "multiple-answer",
+        "answer": "Josep Tarradellas",
+        "options": ["Francesc Macià", "Josep Tarradellas", "Lluís Companys", "Pasqual Maragall"],
+        "try_limit": 2
+      },
+      {
+        "qId": 4,
+        "question": "Quin any va caure Barcelona durant la Guerra de Successió?",
+        "type": "text",
+        "answer": "1714"
+      }
+    ]
+  },
+  {
+    "id": "sustainable-world",
+    "title": "Sostenibilitat i Medi Ambient",
+    "author": "Prof. David",
+    "description": "Coneixements sobre pràctiques sostenibles i ecologia.",
+    "questions": [
+      {
+        "qId": 1,
+        "question": "Quin gas és el principal responsable de l'efecte hivernacle antropogènic?",
+        "type": "multiple-answer",
+        "answer": "Diòxid de carboni",
+        "options": ["Diòxid de carboni", "Heli", "Ozó", "Nitrogen"],
+        "try_limit": 2
+      },
+      {
+        "qId": 2,
+        "question": "Les energies renovables són inesgotables a escala humana?",
+        "type": "boolean",
+        "answer": "true",
+        "try_limit": 1
+      },
+      {
+        "qId": 3,
+        "question": "Quina pràctica redueix millor la generació de residus?",
+        "type": "multiple-answer",
+        "answer": "Reduir el consum",
+        "options": ["Reduir el consum", "Reciclar", "Incinerar", "Enterrar"],
+        "try_limit": 2
+      },
+      {
+        "qId": 4,
+        "question": "Quin és el nom del procés pel qual les plantes converteixen la llum solar en energia química?",
+        "type": "text",
+        "answer": "Fotosíntesi"
+      }
+    ]
+  },
+  {
+    "id": "coding-fundamentals",
+    "title": "Fonaments de Programació",
+    "author": "Prof. Albert",
+    "description": "Preguntes bàsiques sobre programació i informàtica.",
+    "questions": [
+      {
+        "qId": 1,
+        "question": "Quin llenguatge s'utilitza principalment per estilitzar pàgines web?",
+        "type": "multiple-answer",
+        "answer": "CSS",
+        "options": ["JavaScript", "HTML", "CSS", "SQL"],
+        "try_limit": 2
+      },
+      {
+        "qId": 2,
+        "question": "La memòria RAM és volàtil?",
+        "type": "boolean",
+        "answer": "true",
+        "try_limit": 1
+      },
+      {
+        "qId": 3,
+        "question": "Quin és el resultat de 5 % 2 en la majoria de llenguatges?",
+        "type": "text",
+        "answer": "1",
+        "try_limit": 2
+      },
+      {
+        "qId": 4,
+        "question": "Quina estructura de dades segueix la política FIFO?",
+        "type": "multiple-answer",
+        "answer": "Cua",
+        "options": ["Pila", "Cua", "Llista enllaçada", "Arbre"],
+        "try_limit": 3
+      }
+    ]
+  },
+  {
+    "id": "art-culture",
+    "title": "Art i Cultura General",
+    "author": "Prof. Clara",
+    "description": "Preguntes sobre arts visuals, música i patrimoni.",
+    "questions": [
+      {
+        "qId": 1,
+        "question": "Qui va pintar 'La persistència de la memòria'?",
+        "type": "multiple-answer",
+        "answer": "Salvador Dalí",
+        "options": ["Pablo Picasso", "Joan Miró", "Salvador Dalí", "Diego Velázquez"],
+        "try_limit": 2
+      },
+      {
+        "qId": 2,
+        "question": "El Modernisme català va tenir lloc principalment al segle XIX i inicis del XX?",
+        "type": "boolean",
+        "answer": "true",
+        "try_limit": 1
+      },
+      {
+        "qId": 3,
+        "question": "Quin instrument musical té 88 tecles en la seva versió estàndard?",
+        "type": "text",
+        "answer": "Piano"
+      },
+      {
+        "qId": 4,
+        "question": "Quina d'aquestes obres és d'Antoni Gaudí?",
+        "type": "multiple-answer",
+        "answer": "Casa Batlló",
+        "options": ["Casa Batlló", "Palau de la Música", "Hospital de Sant Pau", "La Pedrera"],
+        "try_limit": 2
+      }
+    ]
+  }
+]

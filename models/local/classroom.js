@@ -10,8 +10,13 @@ export class ClassroomModel {
     }
 
     static async createClassroom({classroomData}) {
-        classrooms.push(classroomData);
-        return classroomData;
+        const newClassroom = {
+            status: classroomData.status ?? 'active',
+            endedAt: classroomData.endedAt ?? null,
+            ...classroomData
+        };
+        classrooms.push(newClassroom);
+        return newClassroom;
     }
 
     static async updateClassroom({roomId, classroomData}) {
@@ -62,5 +67,17 @@ export class ClassroomModel {
 
         return classrooms[index].puntuationSchema
     }
-}
 
+    static async finishClassroom({roomId, endedAt}) {
+        const index = classrooms.findIndex(classrooms => classrooms.roomId === roomId)
+        if (index === -1) throw new Error("Classroom not found");
+
+        classrooms[index] = {
+            ...classrooms[index],
+            status: 'finished',
+            endedAt: endedAt ?? new Date().toISOString()
+        };
+
+        return classrooms[index];
+    }
+}
