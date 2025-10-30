@@ -1,4 +1,5 @@
-import quizzes from "../../quiz.json" with { type: "json" }
+import quizzes from "../../quiz.json" with { type: "json" };
+import { validateQuiz } from "../../schema/quiz.js";
 
 export class QuizModel {
 

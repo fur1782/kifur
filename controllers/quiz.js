@@ -1,6 +1,3 @@
-import { validateQuest } from "../schema/question.js";
-import { validateQuiz } from "../schema/quiz.js";
-
 export class QuizController {
     constructor({quizModel}) {
         console.log("QuizController initialized with model:", quizModel);

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="../js/socket-config.js"></script>
     <title>Kifur - Unirse al Quiz</title>
     <style>
         * {
@@ -365,7 +366,7 @@
         let roomId = '';
         let userName = '';
 
-        const socket = io('http://localhost:3000');
+        const socket = window.kifurSocket.create();
 
         // Actualizar estado de conexión
         function updateStatus(message, color = '#27ae60') {
@@ -378,8 +379,18 @@
             updateStatus('Conectat al servidor');
         });
 
+        socket.on('connect_error', (error) => {
+            console.error('Socket connect error:', error);
+            updateStatus(`Error de connexió: ${error.message}`, '#e74c3c');
+        });
+
         socket.on('disconnect', () => {
             updateStatus('Desconnectat', '#e74c3c');
+        });
+
+        statusIndicator.addEventListener('dblclick', () => {
+            window.kifurSocket.promptForConfig();
+            window.location.reload();
         });
         
         const form = document.querySelector('form');

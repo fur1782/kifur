@@ -15,7 +15,9 @@ const ClassroomSchema = z.object({
         value: z.int(),
         correct: z.int(),
         incorrect: z.int(),
-    }))
+    })),
+    status: z.enum(['active', 'finished']).optional(),
+    endedAt: z.string().optional(),
 })
 
 function validateClassRoom(data) {

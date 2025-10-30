@@ -47,6 +47,13 @@ const ClassroomSchema = new Schema(
     userPool: { type: [UserPoolSchema], required: true, default: [] },
     questions: { type: [QuestionSchema], required: true, default: [] },
     puntuationSchema: { type: [PuntuationSchema], required: true, default: [] },
+    status: {
+      type: String,
+      enum: ['active', 'finished'],
+      required: true,
+      default: 'active',
+    },
+    endedAt: { type: Date, default: null },
   },
   { 
     timestamps: true,
@@ -122,6 +129,17 @@ export class ClassroomModel {
       .exec();
     if (!classroom) throw new Error('Classroom not found');
     return classroom.puntuationSchema;
+  }
+
+  static async finishClassroom({ roomId, endedAt }) {
+    const resolvedEndedAt = endedAt ? new Date(endedAt) : new Date();
+    const updated = await Classroom.findOneAndUpdate(
+      { roomId },
+      { $set: { status: 'finished', endedAt: resolvedEndedAt } },
+      { new: true, lean: true }
+    ).exec();
+    if (!updated) throw new Error('Classroom not found');
+    return updated;
   }
 }
 

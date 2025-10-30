@@ -1,45 +1,61 @@
 import express from 'express';
 import http from 'http';
-import {Server} from 'socket.io';
+import { Server } from 'socket.io';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 
+import { appConfig as defaultConfig } from './config/index.js';
 import { createQuizRouter } from './routes/quiz.js';
 import { createClassRoomRouter } from './routes/clasroom.js';
 import { corsMiddleware } from './middleware/cors.js';
 import setupSocket from './sockets/index.js';
 
-export const createApp = ({ quizModel, classRoomModel }) => {
-    const app = express();
-    const server = http.createServer(app);
-    const io = new Server(server, {
-        cors: {
-            origin: '*',
-            methods: ['GET', 'POST']
-        }
-    });
+export const createApp = ({ quizModel, classRoomModel, config = defaultConfig }) => {
+  const app = express();
+  const server = http.createServer(app);
 
-    app.set('io', io);
+  const socketCorsOrigin =
+    config.cors.enabled === false
+      ? false
+      : config.cors.origins.length > 0
+        ? config.cors.origins
+        : true;
 
-    // Middleware
-    app.use(express.json());
-    app.use(corsMiddleware());
-    app.disable('x-powered-by');
+  const io = new Server(server, {
+    cors: {
+      origin: socketCorsOrigin,
+      methods: ['GET', 'POST'],
+    },
+  });
 
-    // Routes
-    app.use('/v1/quizzes', createQuizRouter({ quizModel: quizModel }));
-    app.use('/v1/classroom', createClassRoomRouter({ classRoomModel: classRoomModel, quizModel: quizModel }));
+  app.set('io', io);
 
-    // Socket.io setup
-    setupSocket({io:io, quizModel: quizModel, classRoomModel: classRoomModel});
+  // Middleware
+  app.use(helmet());
+  app.use(express.json());
+  app.use(corsMiddleware(config.cors));
+  app.use(
+    rateLimit({
+      windowMs: config.rateLimit.windowMs,
+      max: config.rateLimit.max,
+      standardHeaders: true,
+      legacyHeaders: false,
+    }),
+  );
+  app.disable('x-powered-by');
 
-    app.get('/', (req, res) => {
-      res.send('Hello, World!');
-    });
+  // Routes
+  app.use('/v1/quizzes', createQuizRouter({ quizModel, config }));
+  app.use('/v1/classroom', createClassRoomRouter({ classRoomModel, quizModel, config }));
 
-    const PORT = process.env.PORT ?? 3000;
+  // Socket.io setup
+  setupSocket({ io, classRoomModel, config });
 
-    server.listen(PORT, '0.0.0.0', () => {
-      console.log(`server listening on port http://localhost:${PORT}`)
-    })
-}
+  app.get('/', (req, res) => {
+    res.send('Hello, World!');
+  });
 
-
+  server.listen(config.port, () => {
+    console.log(`server listening on port http://localhost:${config.port}`);
+  });
+};
