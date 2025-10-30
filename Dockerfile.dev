@@ -1,0 +1,20 @@
+# Dockerfile per desenvolupament del Backend
+FROM node:20-alpine
+
+# Estableix el directori de treball
+WORKDIR /app
+
+# Copia els fitxers de dependències
+COPY package*.json ./
+
+# Instal·la totes les dependències (incloent devDependencies)
+RUN npm install
+
+# Copia tot el codi font
+COPY . .
+
+# Exposa el port del backend
+EXPOSE 3000
+
+# El comando s'especifica al docker-compose.yml per flexibilitat
+CMD ["npm", "run", "start:mongo"]
